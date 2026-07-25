@@ -127,11 +127,6 @@ This updates:
 
 ## Step 5 — Verify
 
-```powershell
-# Count chunks created
-python -c "import json; d=json.load(open('../backend/data/corpus.json')); print(len(d), 'chunks'); cities=set(x['city'] for x in d); print('Cities:', sorted(cities))"
-```
-
 Restart backend:
 
 ```powershell
