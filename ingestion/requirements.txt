@@ -1,0 +1,6 @@
+# Offline ingestion only — NOT installed in production Docker image
+FlagEmbedding>=1.2.11
+torch>=2.1.0
+qdrant-client==1.12.1
+rank-bm25==0.2.2
+python-dotenv==1.0.1

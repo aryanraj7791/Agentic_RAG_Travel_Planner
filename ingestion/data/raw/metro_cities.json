@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Mumbai — City of Dreams",
+    "city": "Mumbai",
+    "category": "destination",
+    "url": "https://en.wikipedia.org/wiki/Mumbai",
+    "text": "Mumbai is India's financial capital on the Arabian Sea. Iconic sights include Gateway of India, Marine Drive, Elephanta Caves, Chhatrapati Shivaji Terminus, and Juhu Beach. Best visited November to February. Chhatrapati Shivaji Maharaj International Airport serves global routes. Local trains are the lifeline but crowded; use metro where available. Street food includes vada pav, pav bhaji, and Bombay sandwich."
+  },
+  {
+    "title": "Bangalore — Silicon Valley of India",
+    "city": "Bangalore",
+    "category": "destination",
+    "url": "https://en.wikipedia.org/wiki/Bangalore",
+    "text": "Bangalore (Bengaluru) is Karnataka's capital known for parks, breweries, and tech industry. Visit Lalbagh Botanical Garden, Bangalore Palace, Cubbon Park, and Nandi Hills for weekend getaways. Kempegowda International Airport connects globally. Pleasant weather October to February. Traffic is heavy; plan buffer time. Filter coffee and South Indian meals are staples."
+  },
+  {
+    "title": "Hyderabad — Pearl City",
+    "city": "Hyderabad",
+    "category": "destination",
+    "url": "https://en.wikipedia.org/wiki/Hyderabad",
+    "text": "Hyderabad blends Nizam heritage with modern IT corridors. Charminar, Golconda Fort, Ramoji Film City, and Hussain Sagar Lake are major draws. Rajiv Gandhi International Airport serves the city. Famous for biryani and haleem. Best visited October to March. Old City offers bangles and pearls shopping near Laad Bazaar."
+  }
+]

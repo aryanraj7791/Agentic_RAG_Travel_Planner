@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Data artifacts (generated offline — commit corpus.json + bm25_index.pkl for deployment)
+ingestion/output/
+
+# PDF extracts (local only)
+pdf_extracts/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Evaluation outputs
+evaluation/results/

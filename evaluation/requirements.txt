@@ -1,0 +1,11 @@
+ragas>=0.2.10
+datasets>=3.2.0
+deepeval>=1.5.0
+langsmith>=0.2.0
+
+# Backend deps for retrieval eval
+rank-bm25==0.2.2
+qdrant-client==1.12.1
+httpx==0.28.1
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
