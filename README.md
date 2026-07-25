@@ -1,11 +1,11 @@
 # Agentic RAG Travel Planner
 
-Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 2.5 Flash**. Optimized for free-tier deployment on **Hugging Face Spaces** (backend) and **Netlify** (frontend).
+Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 2.5 Flash**. Optimized for free-tier deployment on **Render** (backend) and **Netlify** (frontend).
 
 ## Architecture
 
 ```
-Netlify (React) → HF Spaces Docker (FastAPI + LangGraph)
+Netlify (React) → Render (FastAPI + LangGraph)
                       ↓
          Gemini API | Qdrant Cloud | MongoDB Atlas | External APIs
 ```
@@ -15,7 +15,7 @@ Netlify (React) → HF Spaces Docker (FastAPI + LangGraph)
 ## Project Structure
 
 ```
-├── backend/           # FastAPI + LangGraph (deployed to HF Spaces)
+├── backend/           # FastAPI + LangGraph (deployed to Render)
 ├── frontend/          # React + Vite + MUI (deployed to Netlify)
 ├── ingestion/         # Offline pipeline (run locally)
 ├── evaluation/        # RAGAS / DeepEval scripts
@@ -124,12 +124,13 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 
 ## Deployment
 
-### Backend — Hugging Face Spaces (Docker)
+### Backend — Render
 
-1. Create a new **Docker Space**
-2. Push `backend/` contents (Dockerfile + app)
-3. Set all env vars as **Space Secrets**
-4. Include `backend/data/corpus.json` and `bm25_index.pkl` in the repo or mount via build
+1. Create a **Web Service** on Render and connect this GitHub repository.
+2. Set the **Root Directory** to `backend`; Render will automatically build the project using the included `Dockerfile`.
+3. Configure all required environment variables in the Render dashboard.
+4. Ensure `backend/data/corpus.json` and `backend/data/bm25_index.pkl` are committed to the repository.
+5. Deploy the service. Every push to the `main` branch automatically triggers a new deployment.
 
 ### Frontend — Netlify
 
@@ -156,7 +157,7 @@ python evaluate.py
 | App DB | MongoDB Atlas |
 | Retrieval | BM25 + Semantic (RRF merge) |
 | Embeddings | bge-m3 (offline ingestion) |
-| Deployment | Netlify + HF Spaces Docker |
+| Deployment | Netlify + Render |
 
 ---
 
