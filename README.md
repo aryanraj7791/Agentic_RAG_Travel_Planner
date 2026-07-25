@@ -161,6 +161,21 @@ python evaluate.py
 
 ---
 
+## 🚀 Live Demo
+
+- 🌐 **Frontend Application:** https://agentic-rag-travel-planner.netlify.app
+- ⚙️ **Backend API:** https://agentic-rag-travel-planner.onrender.com
+
+> **Note:** The backend is hosted on Render's free tier. The first request after a period of inactivity may take 30–60 seconds while the service wakes up.
+
+---
+
+## 📸 Application Preview
+
+![Travel Planner](assets/travel-planner-home.png)
+
+---
+
 ## Connect with Me
 
 **Aryan Raj**
