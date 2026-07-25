@@ -119,7 +119,6 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 | `MONGODB_URI` | Chat logs / metadata |
 | `OPENWEATHER_API_KEY` | Weather tool |
 | `EXCHANGERATE_API_KEY` | Currency tool |
-| `GOOGLE_MAPS_API_KEY` | Distance + Places |
 | `TAVILY_API_KEY` | Web search |
 | `CORS_ORIGINS` | Netlify frontend URL |
 
@@ -159,7 +158,16 @@ python evaluate.py
 | Embeddings | bge-m3 (offline ingestion) |
 | Deployment | Netlify + HF Spaces Docker |
 
-## License
+---
 
-MIT
+## Connect with Me
 
+**Aryan Raj**
+
+Data Scientist | AI Engineer | Full Stack Developer
+
+- 🌐 GitHub: https://github.com/your-username
+- 💼 LinkedIn: https://linkedin.com/in/your-profile
+- 📧 Email: your.email@example.com
+
+⭐ If this project helped you, please star the repository!
