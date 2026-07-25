@@ -164,10 +164,10 @@ python evaluate.py
 
 **Aryan Raj**
 
-Data Scientist | AI Engineer | Full Stack Developer
+Data Scientist | AI Engineer | Software Developer
 
-- 🌐 GitHub: https://github.com/your-username
-- 💼 LinkedIn: https://linkedin.com/in/your-profile
-- 📧 Email: your.email@example.com
+- 🌐 GitHub: https://github.com/aryanraj7791
+- 💼 LinkedIn: https://www.linkedin.com/in/aryan-raj-79246b280/
+- 📧 Email: aryanraj5371@gmail.com
 
 ⭐ If this project helped you, please star the repository!
