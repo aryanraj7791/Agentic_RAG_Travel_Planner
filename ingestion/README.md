@@ -1,6 +1,6 @@
 # Offline Ingestion Guide
 
-This pipeline runs **on your laptop only** — never on Hugging Face Spaces. It builds the knowledge base your agent retrieves from.
+This pipeline runs **on your laptop only** — never on render(backend). It builds the knowledge base your agent retrieves from.
 
 ## What it does
 
@@ -143,11 +143,13 @@ Test in chat:
 
 ## Step 6 — Deploy note
 
-When deploying to Hugging Face Spaces, **commit** these files to your repo:
+When deploying to **Render**, commit these files to your repository:
 - `backend/data/corpus.json`
 - `backend/data/bm25_index.pkl`
 
-Qdrant vectors live in Qdrant Cloud — not in the Docker image.
+Render automatically redeploys your backend whenever you push changes to GitHub.
+
+Qdrant vectors live in Qdrant Cloud and are **not** stored in the Docker image.
 
 ---
 
