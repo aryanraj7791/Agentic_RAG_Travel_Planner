@@ -1,6 +1,6 @@
 # Agentic RAG Travel Planner
 
-Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 2.5 Flash**. Optimized for free-tier deployment on **Render** (backend) and **Netlify** (frontend).
+Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 3.5 Flash**. Optimized for free-tier deployment on **Render** (backend) and **Netlify** (frontend).
 
 ## Architecture
 
@@ -111,7 +111,7 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 
 | Variable | Purpose |
 |----------|---------|
-| `GEMINI_API_KEY` | Gemini 2.5 Flash via LiteLLM |
+| `GEMINI_API_KEY` | Gemini 3.5 Flash via LiteLLM |
 | `EMBEDDING_MODEL` | Gemini embedding model (default: text-embedding-004) |
 | `EMBEDDING_PROVIDER` | `gemini` (preferred) or `huggingface` |
 | `HF_INFERENCE_API_KEY` | Fallback query embeddings for bge-m3 Qdrant vectors |
@@ -136,7 +136,7 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 
 1. Connect repo, set base directory to `frontend`
 2. Build command: `npm run build`, publish: `dist`
-3. Set `VITE_API_BASE_URL` to your HF Space URL
+3. Set `VITE_API_BASE_URL` to your render backend URL
 
 ## Evaluation
 
@@ -152,7 +152,7 @@ python evaluate.py
 |-------|-----------|
 | Frontend | React, Vite, MUI, Axios, React Markdown |
 | Backend | FastAPI, LangGraph, LiteLLM |
-| LLM | Gemini 2.5 Flash |
+| LLM | Gemini 3.5 Flash |
 | Vector DB | Qdrant Cloud |
 | App DB | MongoDB Atlas |
 | Retrieval | BM25 + Semantic (RRF merge) |
