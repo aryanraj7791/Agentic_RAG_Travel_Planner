@@ -43,7 +43,7 @@ export default function HomePage() {
             Agentic RAG Travel Planner
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: "auto", mb: 4 }}>
-            An intelligent travel assistant powered by Gemini 2.5 Flash, LangGraph,
+            An intelligent travel assistant powered by Gemini 3.5 Flash, LangGraph,
             and hybrid retrieval — built for production deployment.
           </Typography>
           <Button
