@@ -1,8 +1,8 @@
-# Agentic RAG Travel Planner
+# ✈️ Agentic RAG Travel Planner
 
 Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 3.5 Flash**. Optimized for free-tier deployment on **Render** (backend) and **Netlify** (frontend).
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 Netlify (React) → Render (FastAPI + LangGraph)
@@ -12,7 +12,7 @@ Netlify (React) → Render (FastAPI + LangGraph)
 
 **Memory-safe design:** Embeddings are generated **offline only** with `BAAI/bge-m3`. The deployed backend performs retrieval only — no local LLM, no local embedding model, no PDF processing at startup.
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ├── backend/           # FastAPI + LangGraph (deployed to Render)
@@ -22,7 +22,7 @@ Netlify (React) → Render (FastAPI + LangGraph)
 └── scripts/           # Utility scripts
 ```
 
-## Quick Start (Local)
+## 🚀 Quick Start (Local)
 
 ### 1. Backend
 
@@ -105,7 +105,7 @@ Add more JSON documents to `ingestion/data/raw/` before running.
 
 **Agent pipeline:** Safety Check → Intent Analysis → Clarification Decision → Hybrid Retrieval (BM25 + Semantic + RRF) → Tool Router → Planner Agent → Response Generator → Citation Formatter.
 
-## Environment Variables
+## 🔐 Environment Variables
 
 See `backend/.env.example`. Key secrets for HF Spaces:
 
@@ -146,7 +146,7 @@ pip install -r requirements.txt
 python evaluate.py
 ```
 
-## Tech Stack (Strict)
+## 🛠️ Tech Stack (Strict)
 
 | Layer | Technology |
 |-------|-----------|
@@ -176,7 +176,7 @@ python evaluate.py
 
 ---
 
-## Connect with Me
+## 🤝 Connect with Me
 
 **Aryan Raj**
 
