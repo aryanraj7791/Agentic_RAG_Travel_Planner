@@ -155,6 +155,7 @@ python evaluate.py
 | LLM | Gemini 3.5 Flash |
 | Vector DB | Qdrant Cloud |
 | App DB | MongoDB Atlas |
+| Entity Extraction | spaCy (en_core_web_sm) |
 | Retrieval | BM25 + Semantic (RRF merge) |
 | Embeddings | bge-m3 (offline ingestion) |
 | Deployment | Netlify + Render |
