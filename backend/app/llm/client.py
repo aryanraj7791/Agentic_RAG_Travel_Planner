@@ -42,7 +42,7 @@ async def chat_completion(
     messages: list[dict[str, str]],
     *,
     temperature: float = 0.3,
-    max_tokens: int = 2048,
+    max_tokens: int = 4096,
     max_retries: int = 3,
 ) -> str:
     """Call Gemini via LiteLLM and return assistant text with retry + fallback-model logic."""
