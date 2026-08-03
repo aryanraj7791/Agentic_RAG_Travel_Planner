@@ -6,6 +6,13 @@ import re
 
 from app.agent.state import AgentState
 
+import spacy
+
+_nlp = spacy.load('en_core_web_sm')
+
+# Words that get misdetected as GPE but aren't destinations
+_NON_DESTINATION_GPE = {"india", "usa", "uk", "us"}  # keep short — only exclude truly ambiguous cases
+
 SAFETY_REFUSAL = (
     "I'm a travel planning assistant and can't help with that request. "
     "I can help you plan trips, find destinations, compare options, "
@@ -23,18 +30,6 @@ VALID_TOOLS = {
     "flights", "hotels", "visa", "web_search",
 }
 
-_KNOWN_CITIES = [
-    "jaipur", "goa", "manali", "delhi", "kochi", "mumbai", "bangalore",
-    "chennai", "hyderabad", "kerala", "agra", "udaipur", "shimla",
-    "pune", "kolkata", "varanasi", "amritsar", "srinagar", "leh",
-]
-
-_CITY_DISPLAY = {
-    "goa": "Goa",
-    "kochi": "Kochi",
-    "kerala": "Kerala",
-}
-
 
 def extract_last_user_message(state: AgentState) -> str:
     for msg in reversed(state.get("messages", [])):
@@ -46,10 +41,12 @@ def extract_last_user_message(state: AgentState) -> str:
 
 
 def detect_city(text: str) -> str:
-    lowered = text.lower()
-    for city in _KNOWN_CITIES:
-        if city in lowered:
-            return _CITY_DISPLAY.get(city, city.title())
+    doc = _nlp(text)
+    for ent in doc.ents:
+        if ent.label_ in ("GPE", "LOC"):
+            candidate = ent.text.strip()
+            if candidate.lower() not in _NON_DESTINATION_GPE:
+                return candidate.title()
     return ""
 
 
