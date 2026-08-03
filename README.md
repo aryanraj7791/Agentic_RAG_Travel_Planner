@@ -29,7 +29,7 @@ Netlify (React) → Render (FastAPI + LangGraph)
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate        # Windows
+.venv\Scripts\activate        # Activate virtual environement for your project
 pip install -r requirements.txt
 copy .env.example .env        # Fill in API keys
 ```
