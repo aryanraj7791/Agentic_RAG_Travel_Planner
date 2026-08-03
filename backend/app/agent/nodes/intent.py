@@ -100,7 +100,7 @@ async def intent_analysis_node(state: AgentState) -> dict:
         if (isinstance(m, dict) and m.get("role") == "user")
         or (hasattr(m, "type") and m.type == "human")
     )
-    if user_turns > 1 and not parsed.get("city") and len(query.split()) > 6:
+    if not parsed.get("city") and len(query.split()) > 3:
         source = "llm"
         history = format_history(state.get("messages", []), max_turns=2)
         prompt = [
