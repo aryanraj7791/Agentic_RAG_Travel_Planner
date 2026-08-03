@@ -29,3 +29,5 @@ Thumbs.db
 
 # Evaluation outputs
 evaluation/results/
+
+debug.py
