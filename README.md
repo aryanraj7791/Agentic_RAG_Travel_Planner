@@ -30,7 +30,7 @@ Netlify (React)  →  Render (FastAPI + LangGraph)
 ## Agent Pipeline
 
 ```
-[!Agent Pipeline](assets/agent_pipeline_diagram_v2.png)
+![Agent Pipeline](assets/agent_pipeline_diagram_v2.png)
 
 **Memory-safe design:** Embeddings are generated **offline only** with `BAAI/bge-m3`. The deployed backend performs retrieval only — no local LLM, no local embedding model, no PDF processing at startup.
 
