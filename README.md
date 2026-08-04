@@ -1,16 +1,40 @@
 # ✈️ Agentic RAG Travel Planner
 
-Production-grade travel planning system using **LangGraph**, **Hybrid RAG** (BM25 + Qdrant), and **Gemini 3.5 Flash**. Optimized for free-tier deployment on **Render** (backend) and **Netlify** (frontend).
+A production-grade, agentic travel planning system built on LangGraph, Hybrid RAG (BM25 + Qdrant semantic search), and Gemini 3.5 Flash. The backend runs an 8-step reasoning pipeline — from intent detection to retrieval-grounded itinerary generation — optimized for free-tier deployment on Render and Netlify.
+
+## ✨ Features
+- 🧠 Agentic reasoning pipeline — 8 discrete LangGraph nodes with full execution tracing, visible per request
+- 🔍 Hybrid retrieval — BM25 keyword search + Qdrant semantic search, merged via Reciprocal Rank Fusion (RRF)
+- 🌍 Global city detection — spaCy-based NER, not a hardcoded city list; works for any destination worldwide
+- 🛠️ Live tool integration — real-time weather, currency conversion, distance/maps, and web search
+- 💬 Multi-turn conversation — context-aware clarification when trip details are incomplete
+- 🔁 Resilient LLM calls — automatic retry with backoff and fallback-model routing on transient provider errors
+- 📚 Cited responses — every itinerary is grounded in retrieved sources, with citations returned to the client
+- 🪶 Memory-safe deployment — no local LLM or embedding model loaded at runtime; embeddings are generated offline only
 
 ## 🏗️ Architecture
 
 ```
-Netlify (React) → Render (FastAPI + LangGraph)
-                      ↓
-         Gemini API | Qdrant Cloud | MongoDB Atlas | External APIs
+Netlify (React)  →  Render (FastAPI + LangGraph)
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+   Gemini API        Qdrant Cloud      MongoDB Atlas
+  (via LiteLLM)     (vector search)   (chat + itinerary logs)
+                          │
+                 External tool APIs
+          (weather · currency  · web search)
+
 ```
 
+## Agent Pipeline
+
+```
+[!Agent Pipeline](assets/agent_pipeline_diagram_v2.png)
+
 **Memory-safe design:** Embeddings are generated **offline only** with `BAAI/bge-m3`. The deployed backend performs retrieval only — no local LLM, no local embedding model, no PDF processing at startup.
+
+```
 
 ## 📁 Project Structure
 
@@ -29,7 +53,7 @@ Netlify (React) → Render (FastAPI + LangGraph)
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate        # Activate virtual environement for your project
+.venv\Scripts\activate        # Activate virtual environment for your project
 pip install -r requirements.txt
 copy .env.example .env        # Fill in API keys
 ```
@@ -122,7 +146,7 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 | `TAVILY_API_KEY` | Web search |
 | `CORS_ORIGINS` | Netlify frontend URL |
 
-## Deployment
+## ☁️ Deployment
 
 ### Backend — Render
 
@@ -138,7 +162,7 @@ See `backend/.env.example`. Key secrets for HF Spaces:
 2. Build command: `npm run build`, publish: `dist`
 3. Set `VITE_API_BASE_URL` to your render backend URL
 
-## Evaluation
+## 🧪 Evaluation
 
 ```bash
 cd evaluation
@@ -152,13 +176,13 @@ python evaluate.py
 |-------|-----------|
 | Frontend | React, Vite, MUI, Axios, React Markdown |
 | Backend | FastAPI, LangGraph, LiteLLM |
-| LLM | Gemini 3.5 Flash |
+| LLM | Gemini 3.5 Flash (via LiteLLM, with automatic retry + fallback routing) |
 | Vector DB | Qdrant Cloud |
 | App DB | MongoDB Atlas |
-| Entity Extraction | spaCy (en_core_web_sm) |
-| Retrieval | BM25 + Semantic (RRF merge) |
-| Embeddings | bge-m3 (offline ingestion) |
-| Deployment | Netlify + Render |
+| Entity Extraction | spaCy (`en_core_web_sm`) |
+| Retrieval | BM25 + Semantic search, merged via RRF |
+| Embeddings | bge-m3 (generated offline during ingestion) |
+| Deployment | Netlify (frontend) + Render (backend) |
 
 ---
 
@@ -174,6 +198,12 @@ python evaluate.py
 ## 📸 Application Preview
 
 ![Travel Planner](assets/travel-planner-home.png)
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
