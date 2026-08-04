@@ -12,6 +12,8 @@ import json
 
 import os
 
+import re
+
 from typing import Any
 
 
@@ -36,6 +38,22 @@ def _resolve_model(raw_model: str) -> str:
         "gemini-2.0-flash": "gemini-3.5-flash",
     }
     return aliases.get(name, name)
+
+def _parse_json_content(content: str) -> dict[str, Any]:
+    content = content.strip()
+    if content.startswith("```"):
+        content = re.sub(r"^```(?:json)?\s*", "", content)
+        content = re.sub(r"\s*```$", "", content)
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        repaired = content.rstrip(", \n")
+        if repaired.count('"') % 2 != 0:
+            repaired += '"'
+        open_braces = repaired.count("{") - repaired.count("}")
+        open_brackets = repaired.count("[") - repaired.count("]")
+        repaired += "]" * open_brackets + "}" * open_braces
+        return json.loads(repaired)
 
 
 async def chat_completion(
@@ -98,11 +116,18 @@ async def chat_completion_json(messages, *, temperature=0.2, max_retries=3) -> d
                     temperature=temperature,
                     custom_llm_provider="gemini",
                     response_format={"type": "json_object"},
-                    max_tokens=4096,
+                    max_tokens=8192,
                     api_key=settings.gemini_api_key,
                 )
                 content = response.choices[0].message.content or "{}"
-                return json.loads(content)
+                try:
+                    return _parse_json_content(content)
+                except json.JSONDecodeError as e:
+                    print(f"JSON PARSE FAILED: {e}")
+                    print(f"RAW CONTENT LENGTH: {len(content)} chars")
+                    print(f"RAW CONTENT (first 2000 chars): {content[:2000]}")
+                    print(f"RAW CONTENT (last 500 chars): {content[-500:]}")
+                    raise
             except (RateLimitError, ServiceUnavailableError) as e:
                 if attempt < max_retries - 1:
                     wait_time = 2 ** attempt * 5
