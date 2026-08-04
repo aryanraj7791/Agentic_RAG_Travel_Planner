@@ -30,7 +30,41 @@ Netlify (React)  →  Render (FastAPI + LangGraph)
 ## Agent Pipeline
 
 ```
-![Agent Pipeline](assets/agent_pipeline_diagram_v2.png)
+            👤 User Query
+                  │
+                  ▼
+        🛡️ Safety Check
+                  │
+                  ▼
+       🎯 Intent Analysis
+                  │
+                  ▼
+    ❓ Clarification Decision
+                  │
+          Enough Information
+            │             │
+            │             │
+            No            └──────────Yes────────────
+            │                                       │
+            │                                       │
+  Ask Clarifying Questions                          ▼
+            │                   ─────────────▶🔍 Hybrid Retrieval
+    User Provide Details       │                  (BM25 + Qdrant)
+            │                  │                      │
+            └──────────────────                       ▼
+                                              🛠️ Tool Router
+                                                      │
+                                                      ▼
+                                              🤖 Planner Agent
+                                                      │
+                                                      ▼
+                                          ✨ Response Generator
+                                                      │
+                                                      ▼
+                                            📄 Citation Formatter
+                                                      │
+                                                      ▼
+                                            ✅ Final Response
 
 **Memory-safe design:** Embeddings are generated **offline only** with `BAAI/bge-m3`. The deployed backend performs retrieval only — no local LLM, no local embedding model, no PDF processing at startup.
 
