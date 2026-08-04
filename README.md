@@ -27,7 +27,7 @@ Netlify (React)  →  Render (FastAPI + LangGraph)
 
 ```
 
-## Agent Pipeline
+## 🤖 Agent Pipeline
 
 ```
             👤 User Query
