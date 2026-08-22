@@ -1,9 +1,8 @@
 import {
   Box,
-  Card,
-  CardContent,
   Chip,
   Link,
+  Paper,
   Typography,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -13,39 +12,43 @@ export default function RecommendationsPanel({ recommendations = [] }) {
 
   return (
     <Box component="section" aria-labelledby="recommendations-heading">
-      <Typography id="recommendations-heading" variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-        Places and options related to this plan
-      </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1, mb: 1 }}>
+        <Typography id="recommendations-heading" variant="subtitle2" color="text.secondary">
+          Places and options related to this plan
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {recommendations.length} {recommendations.length === 1 ? "option" : "options"}
+        </Typography>
+      </Box>
+      <Paper variant="outlined" sx={{ overflow: "hidden" }}>
         {recommendations.map((rec, idx) => (
-          <Card key={`${rec.title}-${rec.url || idx}`} variant="outlined">
-            <CardContent sx={{ p: 1.75, "&:last-child": { pb: 1.75 } }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1, mb: 0.75 }}>
-                <Typography variant="subtitle2" color="text.primary" sx={{ pr: 0.5 }}>
+          <Box
+            key={`${rec.title}-${rec.url || idx}`}
+            sx={{ p: 1.5, borderBottom: idx < recommendations.length - 1 ? "1px solid" : "none", borderColor: "divider" }}
+          >
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle2" color="text.primary" sx={{ overflowWrap: "anywhere" }}>
                   {rec.title}
                 </Typography>
-                {rec.type && <Chip label={rec.type} size="small" color="primary" variant="outlined" />}
+                {rec.city && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>{rec.city}</Typography>}
               </Box>
-              {rec.city && (
-                <Typography variant="body2" color="text.secondary">
-                  {rec.city}
-                </Typography>
-              )}
-              {rec.url && (
-                <Link
-                  href={rec.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`View details for ${rec.title} (opens in a new tab)`}
-                  sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 1, fontSize: "0.8125rem", fontWeight: 600 }}
-                >
-                  View details <OpenInNewIcon sx={{ fontSize: 14 }} aria-hidden />
-                </Link>
-              )}
-            </CardContent>
-          </Card>
+              {rec.type && <Chip label={rec.type} size="small" color="primary" variant="outlined" sx={{ flexShrink: 0 }} />}
+            </Box>
+            {rec.url && (
+              <Link
+                href={rec.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View details for ${rec.title} (opens in a new tab)`}
+                sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.75, fontSize: "0.8125rem", fontWeight: 600 }}
+              >
+                View details <OpenInNewIcon sx={{ fontSize: 14 }} aria-hidden />
+              </Link>
+            )}
+          </Box>
         ))}
-      </Box>
+      </Paper>
     </Box>
   );
 }

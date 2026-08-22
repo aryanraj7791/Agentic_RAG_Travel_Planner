@@ -24,14 +24,14 @@ export default function TripWorkspace({ response, loading }) {
         Trip workspace
       </Typography>
       <Typography id="workspace-heading" variant="h4" component="h2" sx={{ mt: 0.25, mb: 0.75 }}>
-        Everything your trip needs, in one place.
+        Trip details, kept together.
       </Typography>
       <Typography variant="body2" sx={{ mb: 2 }}>
-        Research, recommendations, and supporting sources appear here as your plan develops.
+        Useful places, supporting sources, and planning steps stay alongside your itinerary.
       </Typography>
 
       {hasWorkspaceData ? (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
           <RecommendationsPanel recommendations={response.recommendations} />
           <SourcesPanel sources={response.sources} />
           <ExecutionTracePanel traces={response.execution_traces} />
@@ -39,7 +39,7 @@ export default function TripWorkspace({ response, loading }) {
       ) : (
         <Paper
           variant="outlined"
-          sx={{ p: 2.5, bgcolor: "background.paper" }}
+          sx={{ p: 2.25, bgcolor: "background.paper" }}
         >
           <AutoAwesomeOutlinedIcon sx={{ color: "secondary.main", mb: 1 }} />
           <Typography variant="subtitle2" color="text.primary" sx={{ mb: 0.5 }}>

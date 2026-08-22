@@ -3,7 +3,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import ItineraryView from "./planner/ItineraryView";
 
-export default function ChatMessage({ role, content }) {
+export default function ChatMessage({ role, content, hasDedicatedSources = false }) {
   const isUser = role === "user";
 
   return (
@@ -85,7 +85,7 @@ export default function ChatMessage({ role, content }) {
         {isUser ? (
           <Typography variant="body1" sx={{ color: "inherit" }}>{content}</Typography>
         ) : (
-          <ItineraryView content={content} />
+          <ItineraryView content={content} hasDedicatedSources={hasDedicatedSources} />
         )}
       </Paper>
     </Box>

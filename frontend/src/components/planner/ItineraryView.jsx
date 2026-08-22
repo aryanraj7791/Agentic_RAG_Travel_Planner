@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 const DAY_HEADING = /^day\s*(\d+)\s*(?::|\-|\u2013|\u2014)?\s*(.*)$/i;
 const PERIOD_HEADING = /^(morning|afternoon|evening|night|arrival|departure|travel)(?:\s*\(([^)]+)\))?$/i;
 const CALLOUT = /^(budget|estimated cost|travel time|distance|weather(?: note)?|transport(?: note)?|important(?: note)?|tips?|things to carry|safety(?: note)?|opening(?:\/closing)? considerations?)\s*:/i;
+const SOURCE_FOOTER = /\n---\s*\n\*\*Sources:\*\*\s*\n(?:\d+\.\s+https?:\/\/[^\s]+\s*\n?)+\s*$/i;
 
 function textFromChildren(children) {
   if (Array.isArray(children)) return children.map(textFromChildren).join("");
@@ -58,11 +59,14 @@ function ActivityHeading({ children }) {
 
 function Paragraph({ children }) {
   const text = textFromChildren(children).trim();
-  const isCallout = CALLOUT.test(text);
+  const calloutMatch = text.match(CALLOUT);
+  const isCallout = Boolean(calloutMatch);
 
   return (
     <Box
       component="p"
+      role={isCallout ? "note" : undefined}
+      aria-label={isCallout ? `${calloutMatch[1]} note` : undefined}
       sx={isCallout ? {
         my: 1.25,
         px: 1.5,
@@ -72,6 +76,22 @@ function Paragraph({ children }) {
         bgcolor: "background.default",
         borderRadius: "0 8px 8px 0",
       } : undefined}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function MarkdownList({ ordered = false, children }) {
+  return (
+    <Box
+      component={ordered ? "ol" : "ul"}
+      sx={{
+        my: 1.5,
+        pl: { xs: 2.5, sm: 3 },
+        "& li": { mb: 0.6, pl: 0.25 },
+        "& ul, & ol": { my: 0.75 },
+      }}
     >
       {children}
     </Box>
@@ -94,30 +114,40 @@ function MarkdownLink({ href, children }) {
   );
 }
 
-const ItineraryView = memo(function ItineraryView({ content }) {
-  const markdown = typeof content === "string" ? content.trim() : "";
+const ItineraryView = memo(function ItineraryView({ content, hasDedicatedSources = false }) {
+  const rawMarkdown = typeof content === "string" ? content.trim() : "";
+  const markdown = hasDedicatedSources ? rawMarkdown.replace(SOURCE_FOOTER, "").trim() : rawMarkdown;
 
   if (!markdown) {
     return <Typography variant="body2">I couldn&apos;t generate a travel response. Please try again.</Typography>;
   }
 
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children }) => (
-          <Box component="header" sx={{ mb: 2.25, pb: 1.75, borderBottom: "1px solid", borderColor: "divider" }}>
-            <Typography component="h1" variant="h4">{children}</Typography>
-          </Box>
-        ),
-        h2: ({ children }) => <DayHeading>{children}</DayHeading>,
-        h3: ({ children }) => <ActivityHeading>{children}</ActivityHeading>,
-        p: Paragraph,
-        a: MarkdownLink,
+    <Box
+      sx={{
+        "& h4": { mt: 2.25, mb: 0.75 },
+        "& table": { display: "block", maxWidth: "100%", overflowX: "auto", my: 1.5 },
       }}
     >
-      {markdown}
-    </ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => (
+            <Box component="header" sx={{ mb: 2.25, pb: 1.75, borderBottom: "1px solid", borderColor: "divider" }}>
+              <Typography component="h1" variant="h4">{children}</Typography>
+            </Box>
+          ),
+          h2: ({ children }) => <DayHeading>{children}</DayHeading>,
+          h3: ({ children }) => <ActivityHeading>{children}</ActivityHeading>,
+          p: Paragraph,
+          ul: ({ children }) => <MarkdownList>{children}</MarkdownList>,
+          ol: ({ children }) => <MarkdownList ordered>{children}</MarkdownList>,
+          a: MarkdownLink,
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
+    </Box>
   );
 });
 

@@ -3,6 +3,9 @@ import {
   Container,
   Paper,
   Alert,
+  Button,
+  Stack,
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,6 +18,14 @@ import PlanningStatus from "../components/planner/PlanningStatus";
 import RequestError from "../components/planner/RequestError";
 import { sendChat } from "../services/api";
 
+const FOLLOW_UP_PROMPTS = [
+  "Make it cheaper",
+  "Add more food experiences",
+  "Change the pace",
+  "Check the weather",
+  "Plan another day",
+];
+
 function getRequestError(err) {
   if (err?.code === "ECONNABORTED" || /timeout/i.test(err?.message || "")) {
     return {
@@ -25,7 +36,7 @@ function getRequestError(err) {
 
   if (!err?.response || /network|cors/i.test(err?.message || "")) {
     return {
-      title: "Couldn’t reach the travel planner.",
+      title: "Couldn't reach the travel planner.",
       detail: "The service may be waking up or temporarily unavailable. Please try again.",
     };
   }
@@ -59,7 +70,14 @@ export default function ChatPage() {
 
     try {
       const data = await sendChat(updated);
-      setMessages([...updated, { role: "assistant", content: data.reply }]);
+      setMessages([...
+        updated,
+        {
+          role: "assistant",
+          content: data.reply,
+          hasDedicatedSources: Array.isArray(data.sources) && data.sources.length > 0,
+        },
+      ]);
       setLastResponse(data);
     } catch (err) {
       setError(getRequestError(err));
@@ -116,6 +134,10 @@ export default function ChatPage() {
     void sendTurn(failedRequest.text, failedRequest.history);
   };
 
+  const handleFollowUp = (prompt) => {
+    void sendTurn(prompt, messages);
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 2.5, md: 4 } }}>
       <PlannerHeader
@@ -145,14 +167,39 @@ export default function ChatPage() {
             )}
 
             {messages.map((msg, idx) => (
-              <ChatMessage key={idx} role={msg.role} content={msg.content} />
+              <ChatMessage
+                key={idx}
+                role={msg.role}
+                content={msg.content}
+                hasDedicatedSources={msg.hasDedicatedSources}
+              />
             ))}
 
             {loading && <PlanningStatus />}
 
             {lastResponse?.end_of_conversation && !loading && (
-              <Alert severity="success" sx={{ mt: 2 }}>
-                Your travel plan is complete. Start a new chat for another trip.
+              <Alert severity="success" sx={{ mt: 2, alignItems: "flex-start" }}>
+                <Typography variant="subtitle2" component="p" sx={{ mb: 0.5 }}>
+                  Your travel plan is ready.
+                </Typography>
+                <Typography variant="body2" component="p">
+                  Continue refining this trip or start a new chat when you&apos;re ready for somewhere new.
+                </Typography>
+                <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 1.5 }}>
+                  {FOLLOW_UP_PROMPTS.map((prompt) => (
+                    <Button
+                      key={prompt}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleFollowUp(prompt)}
+                      disabled={loading}
+                      aria-label={`${prompt} for this trip`}
+                    >
+                      {prompt}
+                    </Button>
+                  ))}
+                </Stack>
               </Alert>
             )}
           </Paper>
@@ -164,7 +211,7 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             onSend={handleSend}
-            disabled={loading || lastResponse?.end_of_conversation}
+            disabled={loading}
           />
         </Box>
 
