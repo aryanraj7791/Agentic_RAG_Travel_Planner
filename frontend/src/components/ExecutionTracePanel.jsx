@@ -22,12 +22,20 @@ export default function ExecutionTracePanel({ traces = [] }) {
   if (!traces.length) return null;
 
   return (
-    <Accordion elevation={0} sx={{ mt: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+    <Accordion
+      elevation={0}
+      sx={{
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: "10px !important",
+        "&:before": { display: "none" },
+      }}
+    >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <TimelineIcon fontSize="small" color="action" />
           <Typography variant="subtitle2">
-            Agent Execution Trace ({traces.length} steps)
+            How your plan was prepared ({traces.length} steps)
           </Typography>
         </Box>
       </AccordionSummary>
@@ -53,7 +61,7 @@ export default function ExecutionTracePanel({ traces = [] }) {
                 sx={{ minWidth: 80 }}
               />
               <Box>
-                <Typography variant="body2" fontWeight={600}>
+                <Typography variant="body2" fontWeight={600} color="text.primary">
                   {trace.step}
                 </Typography>
                 {trace.detail && (

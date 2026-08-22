@@ -1,21 +1,17 @@
 import {
   Box,
-  Button,
   Container,
   Paper,
-  TextField,
-  Typography,
   CircularProgress,
   Alert,
 } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChatMessage from "../components/ChatMessage";
-import RecommendationsPanel from "../components/RecommendationsPanel";
-import SourcesPanel from "../components/SourcesPanel";
-import ExecutionTracePanel from "../components/ExecutionTracePanel";
+import PlannerHeader from "../components/planner/PlannerHeader";
+import EmptyPlannerState from "../components/planner/EmptyPlannerState";
+import ChatComposer from "../components/planner/ChatComposer";
+import TripWorkspace from "../components/planner/TripWorkspace";
 import { sendChat } from "../services/api";
 
 export default function ChatPage() {
@@ -83,75 +79,76 @@ export default function ChatPage() {
     }
   };
 
+  const handleStarterPrompt = (prompt) => {
+    void sendTurn(prompt, messages);
+  };
+
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h4" fontWeight={700}>
-          Plan Your Trip
-        </Typography>
-        <Button startIcon={<RefreshIcon />} onClick={handleNewChat} variant="outlined" size="small">
-          New Chat
-        </Button>
-      </Box>
+    <Container maxWidth="xl" sx={{ py: { xs: 2.5, md: 4 } }}>
+      <PlannerHeader
+        onNewChat={handleNewChat}
+        disabled={loading}
+      />
 
-      <Paper elevation={1} sx={{ p: 3, minHeight: 420, borderRadius: 3, mb: 2 }}>
-        {messages.length === 0 && (
-          <Typography color="text.secondary" textAlign="center" sx={{ mt: 8 }}>
-            Ask me about destinations, itineraries, weather, currency, or travel tips.
-            <br />
-            Example: &quot;Plan a 5-day trip to Jaipur in December&quot;
-          </Typography>
-        )}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1.65fr) minmax(300px, 0.8fr)" },
+          gap: { xs: 3, lg: 4 },
+          alignItems: "start",
+        }}
+      >
+        <Box component="section" aria-label="Conversation" sx={{ minWidth: 0 }}>
+          <Paper
+            elevation={1}
+            sx={{
+              p: { xs: 2, sm: 2.5, md: 3 },
+              minHeight: { xs: 320, md: 500 },
+              borderRadius: 2,
+            }}
+          >
+            {messages.length === 0 && !loading && (
+              <EmptyPlannerState onSelect={handleStarterPrompt} disabled={loading} />
+            )}
 
-        {messages.map((msg, idx) => (
-          <ChatMessage key={idx} role={msg.role} content={msg.content} />
-        ))}
+            {messages.map((msg, idx) => (
+              <ChatMessage key={idx} role={msg.role} content={msg.content} />
+            ))}
 
-        {loading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress size={28} />
-          </Box>
-        )}
+            {loading && (
+              <Box
+                role="status"
+                aria-live="polite"
+                sx={{ display: "flex", alignItems: "center", gap: 1.25, py: 2, color: "text.secondary" }}
+              >
+                <CircularProgress size={20} />
+                Planning your trip...
+              </Box>
+            )}
 
-        {lastResponse && !loading && (
-          <>
-            <RecommendationsPanel recommendations={lastResponse.recommendations} />
-            <SourcesPanel sources={lastResponse.sources} />
-            <ExecutionTracePanel traces={lastResponse.execution_traces} />
-            {lastResponse.end_of_conversation && (
+            {lastResponse?.end_of_conversation && !loading && (
               <Alert severity="success" sx={{ mt: 2 }}>
                 Your travel plan is complete. Start a new chat for another trip.
               </Alert>
             )}
-          </>
-        )}
-      </Paper>
+          </Paper>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+          {error && (
+            <Alert severity="error" sx={{ mt: 1.5 }}>
+              {error}
+            </Alert>
+          )}
 
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <TextField
-          fullWidth
-          multiline
-          maxRows={4}
-          placeholder="Describe your travel plans..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={loading || lastResponse?.end_of_conversation}
-        />
-        <Button
-          variant="contained"
-          onClick={handleSend}
-          disabled={loading || !input.trim() || lastResponse?.end_of_conversation}
-          sx={{ px: 3 }}
-        >
-          <SendIcon />
-        </Button>
+          <ChatComposer
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onSend={handleSend}
+            disabled={loading || lastResponse?.end_of_conversation}
+          />
+        </Box>
+
+        <TripWorkspace response={lastResponse} />
       </Box>
     </Container>
   );
