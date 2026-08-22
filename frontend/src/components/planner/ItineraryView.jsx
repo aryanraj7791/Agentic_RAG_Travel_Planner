@@ -5,6 +5,7 @@ import CommuteIcon from "@mui/icons-material/Commute";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import FlightLandIcon from "@mui/icons-material/FlightLand";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import FreeBreakfastIcon from "@mui/icons-material/FreeBreakfast";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import NightsStayIcon from "@mui/icons-material/NightsStay";
@@ -19,7 +20,7 @@ import { memo } from "react";
 import remarkGfm from "remark-gfm";
 
 const DAY_HEADING = /^day\s*(\d+)\s*(?::|\-|\u2013|\u2014)?\s*(.*)$/i;
-const PERIOD_LABEL = "early morning|late morning|morning|afternoon|evening|night|arrival|departure|travel|breakfast|lunch|dinner";
+const PERIOD_LABEL = "early morning|late morning|morning|mid-day|afternoon|evening|night|arrival|departure|travel|breakfast|lunch|dinner";
 const PERIOD_HEADING = new RegExp(`^(${PERIOD_LABEL})(?:\\s*\\(([^)]+)\\))?(?:\\s*:\\s*(.*))?$`, "i");
 const ACTIVITY_LIST_ITEM = new RegExp(`^\\s*(?:[-+*]|\\d+[.)])\\s+\\*\\*(${PERIOD_LABEL})(?:\\s*\\(([^)]+)\\))?\\s*:\\s*([^*]*?)\\*\\*\\s*(.*)$`, "i");
 const CALLOUT = /^(budget|estimated cost|travel time|distance|weather(?: note)?|transport(?: note)?|important(?: note)?|tips?|things to carry|safety(?: note)?|opening(?:\/closing)? considerations?)\s*:/i;
@@ -29,13 +30,14 @@ const PERIOD_PRESENTATION = {
   morning: { Icon: WbSunnyIcon, background: "#FFF6DF", border: "#E9C66C", color: "#8A5A00" },
   "early morning": { Icon: WbSunnyIcon, background: "#FFF6DF", border: "#E9C66C", color: "#8A5A00" },
   "late morning": { Icon: WbSunnyIcon, background: "#FFF6DF", border: "#E9C66C", color: "#8A5A00" },
+  "mid-day": { Icon: WbSunnyIcon, background: "#EAF5FF", border: "#91C5E8", color: "#235C7B" },
   afternoon: { Icon: WbSunnyIcon, background: "#EAF5FF", border: "#91C5E8", color: "#235C7B" },
   evening: { Icon: WbTwilightIcon, background: "#F0EDFF", border: "#B9AFE5", color: "#55428D" },
   night: { Icon: NightsStayIcon, background: "#ECEFFC", border: "#9BA8DA", color: "#34477E" },
   arrival: { Icon: FlightLandIcon, background: "#E8F5F2", border: "#8FC9BE", color: "#286C63" },
   departure: { Icon: FlightTakeoffIcon, background: "#E8F5F2", border: "#8FC9BE", color: "#286C63" },
   travel: { Icon: DirectionsCarIcon, background: "#E8F5F2", border: "#8FC9BE", color: "#286C63" },
-  breakfast: { Icon: RestaurantIcon, background: "#FFF0E8", border: "#E5AA79", color: "#93472A" },
+  breakfast: { Icon: FreeBreakfastIcon, background: "#FFF0E8", border: "#E5AA79", color: "#93472A" },
   lunch: { Icon: RestaurantIcon, background: "#FFF0E8", border: "#E5AA79", color: "#93472A" },
   dinner: { Icon: RestaurantIcon, background: "#FFF0E8", border: "#E5AA79", color: "#93472A" },
 };
@@ -96,6 +98,12 @@ function normalizeActivityMarkdown(markdown) {
   return lines.map((line) => line.replace(leadingIndent, "")).join("\n");
 }
 
+function activityMeta(value) {
+  if (!value) return null;
+  const isTime = /\b\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)\b|\bnoon\b|\bonwards\b/i.test(value);
+  return { value, isTime };
+}
+
 function MarkdownContent({ markdown }) {
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
@@ -145,7 +153,7 @@ function splitItinerary(markdown) {
   markdown.split("\n").forEach((line) => {
     if (/^\s*(```|~~~)/.test(line)) inCodeFence = !inCodeFence;
     if (!inCodeFence) {
-      const dayMatch = headingText(line, 2)?.match(DAY_HEADING);
+      const dayMatch = (headingText(line, 2) || headingText(line, 3))?.match(DAY_HEADING);
       if (dayMatch) {
         if (currentDay) flushDay(); else flushPlain();
         currentDay = { type: "day", number: dayMatch[1], title: dayMatch[2], markdown: "", activities: [] };
@@ -180,14 +188,16 @@ function splitItinerary(markdown) {
 function ActivityCard({ activity, dayNumber, index }) {
   const presentation = PERIOD_PRESENTATION[activity.period.toLowerCase()];
   const { Icon } = presentation;
+  const meta = activityMeta(activity.time);
+  const MetaIcon = meta?.isTime ? ScheduleIcon : InfoOutlinedIcon;
   const headingId = `day-${dayNumber}-activity-${index}`;
   return (
-    <Box sx={{ display: "grid", gridTemplateColumns: "30px minmax(0, 1fr)", columnGap: { xs: 1, sm: 1.25 }, minWidth: 0 }}>
-      <Box aria-hidden="true" sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}><Box sx={{ width: 13, height: 13, mt: 1.5, borderRadius: "50%", bgcolor: presentation.color, border: "3px solid", borderColor: presentation.background, boxSizing: "content-box", zIndex: 1 }} /><Box sx={{ width: 1, flex: 1, minHeight: 22, bgcolor: "divider" }} /></Box>
-      <Paper component="section" aria-labelledby={headingId} variant="outlined" sx={{ minWidth: 0, mb: 1.5, p: { xs: 1.25, sm: 1.5 }, borderColor: presentation.border, borderLeft: "3px solid", borderLeftColor: presentation.color, bgcolor: "background.paper", boxShadow: "0 1px 2px rgba(26, 35, 50, 0.04)" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: activity.markdown ? 1 : 0, minWidth: 0 }}>
-          <Box aria-hidden="true" sx={{ display: "grid", placeItems: "center", width: 30, height: 30, borderRadius: 1, bgcolor: presentation.background, color: presentation.color, flexShrink: 0 }}><Icon sx={{ fontSize: 18 }} /></Box>
-          <Box sx={{ minWidth: 0 }}><Typography id={headingId} component="h3" variant="subtitle2" sx={{ color: "text.primary", textTransform: "uppercase", letterSpacing: "0.08em" }}>{activity.period}</Typography>{activity.title && <Typography variant="body2" sx={{ mt: 0.1, color: "text.primary", fontWeight: 600 }}>{activity.title}</Typography>}{activity.time && <Typography variant="caption" sx={{ display: "block", mt: 0.1 }}>{activity.time}</Typography>}</Box>
+    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "26px minmax(0, 1fr)", sm: "34px minmax(0, 1fr)" }, columnGap: { xs: 0.75, sm: 1.25 }, minWidth: 0 }}>
+      <Box aria-hidden="true" sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}><Box sx={{ width: 12, height: 12, mt: 1.75, borderRadius: "50%", bgcolor: presentation.color, border: "3px solid", borderColor: presentation.background, boxSizing: "content-box", zIndex: 1 }} /><Box sx={{ width: 1, flex: 1, minHeight: 24, bgcolor: "divider" }} /></Box>
+      <Paper component="section" aria-labelledby={headingId} variant="outlined" sx={{ minWidth: 0, mb: { xs: 1.25, sm: 1.75 }, p: { xs: 1.5, sm: 1.75 }, borderColor: presentation.border, borderLeft: "3px solid", borderLeftColor: presentation.color, borderRadius: 2, bgcolor: "background.paper", boxShadow: "0 2px 8px rgba(26, 35, 50, 0.045)" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.25, mb: activity.markdown ? 1.25 : 0, minWidth: 0 }}>
+          <Box aria-hidden="true" sx={{ display: "grid", placeItems: "center", width: 36, height: 36, borderRadius: 1.25, bgcolor: presentation.background, color: presentation.color, flexShrink: 0 }}><Icon sx={{ fontSize: 20 }} /></Box>
+          <Box sx={{ minWidth: 0, pt: 0.1 }}><Typography id={headingId} component="h3" variant="overline" sx={{ display: "block", color: presentation.color, fontWeight: 700 }}>{activity.period}</Typography>{activity.title && <Typography variant="subtitle1" sx={{ mt: 0.1, color: "text.primary", fontWeight: 700, lineHeight: 1.35 }}>{activity.title}</Typography>}{meta && <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.45, mt: 0.5, px: 0.75, py: 0.25, borderRadius: 1, bgcolor: presentation.background, color: presentation.color }}><MetaIcon aria-hidden="true" sx={{ fontSize: 13 }} /><Typography variant="caption" sx={{ color: "inherit", fontWeight: 600 }}>{meta.value}</Typography></Box>}</Box>
         </Box>
         {activity.markdown && <MarkdownContent markdown={normalizeActivityMarkdown(activity.markdown)} />}
       </Paper>
@@ -198,9 +208,9 @@ function ActivityCard({ activity, dayNumber, index }) {
 function DaySection({ day }) {
   const headingId = `day-${day.number}-heading`;
   return (
-    <Box component="section" aria-labelledby={headingId} sx={{ mt: 4, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
-      <Box component="header" sx={{ display: "flex", alignItems: "baseline", gap: 1.25, mb: 1.75 }}>
-        <Typography component="span" variant="overline" sx={{ color: "secondary.main", fontWeight: 700, px: 1, py: 0.3, bgcolor: "rgba(184, 92, 56, 0.10)", borderRadius: 1 }}>Day {day.number}</Typography>
+    <Box component="section" aria-labelledby={headingId} sx={{ mt: { xs: 3.5, sm: 4.5 }, pt: { xs: 2, sm: 2.5 }, borderTop: "1px solid", borderColor: "divider" }}>
+      <Box component="header" sx={{ display: "flex", alignItems: "baseline", gap: 1.25, mb: { xs: 2, sm: 2.25 }, pl: 1.25, borderLeft: "3px solid", borderColor: "secondary.main" }}>
+        <Typography component="span" variant="overline" sx={{ color: "secondary.main", fontWeight: 700, px: 1, py: 0.35, bgcolor: "rgba(184, 92, 56, 0.10)", borderRadius: 1 }}>Day {day.number}</Typography>
         {day.title ? <Typography id={headingId} component="h2" variant="h5">{day.title}</Typography> : <Typography id={headingId} component="h2" variant="h5" sx={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>Day {day.number}</Typography>}
       </Box>
       {day.markdown && <Box sx={{ mb: day.activities.length ? 1.5 : 0 }}><MarkdownContent markdown={day.markdown} /></Box>}
