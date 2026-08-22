@@ -14,7 +14,7 @@ export default function RecommendationsPanel({ recommendations = [] }) {
   return (
     <Box component="section" aria-labelledby="recommendations-heading">
       <Typography id="recommendations-heading" variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-        Recommendations
+        Places and options related to this plan
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {recommendations.map((rec, idx) => (

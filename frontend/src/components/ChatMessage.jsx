@@ -1,7 +1,7 @@
 import { Box, Paper, Typography, Avatar } from "@mui/material";
-import ReactMarkdown from "react-markdown";
 import PersonIcon from "@mui/icons-material/Person";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
+import ItineraryView from "./planner/ItineraryView";
 
 export default function ChatMessage({ role, content }) {
   const isUser = role === "user";
@@ -44,23 +44,13 @@ export default function ChatMessage({ role, content }) {
             from: { opacity: 0, transform: "translateY(5px)" },
             to: { opacity: 1, transform: "translateY(0)" },
           },
+          "@media (prefers-reduced-motion: reduce)": {
+            animation: "none",
+          },
           "& p": { mt: 0, mb: 1.25 },
           "& p:last-child": { mb: 0 },
-          "& h1, & h2, & h3, & h4": {
-            mt: 0,
-            mb: 1.25,
-            color: "inherit",
-          },
-          "& h1": { typography: "h4" },
-          "& h2": { typography: "h5" },
-          "& h3, & h4": { typography: "h6" },
           "& ul, & ol": { pl: 2.5, my: 1.25 },
           "& li": { mb: 0.5 },
-          "& a": {
-            color: isUser ? "inherit" : "primary.main",
-            fontWeight: 600,
-            overflowWrap: "anywhere",
-          },
           "& strong": { fontWeight: 700 },
           "& blockquote": {
             m: 0,
@@ -95,7 +85,7 @@ export default function ChatMessage({ role, content }) {
         {isUser ? (
           <Typography variant="body1" sx={{ color: "inherit" }}>{content}</Typography>
         ) : (
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ItineraryView content={content} />
         )}
       </Paper>
     </Box>
