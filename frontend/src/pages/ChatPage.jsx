@@ -2,7 +2,6 @@ import {
   Box,
   Container,
   Paper,
-  CircularProgress,
   Alert,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -12,7 +11,30 @@ import PlannerHeader from "../components/planner/PlannerHeader";
 import EmptyPlannerState from "../components/planner/EmptyPlannerState";
 import ChatComposer from "../components/planner/ChatComposer";
 import TripWorkspace from "../components/planner/TripWorkspace";
+import PlanningStatus from "../components/planner/PlanningStatus";
+import RequestError from "../components/planner/RequestError";
 import { sendChat } from "../services/api";
+
+function getRequestError(err) {
+  if (err?.code === "ECONNABORTED" || /timeout/i.test(err?.message || "")) {
+    return {
+      title: "The trip planner is taking longer than expected.",
+      detail: "You can retry without rewriting your request.",
+    };
+  }
+
+  if (!err?.response || /network|cors/i.test(err?.message || "")) {
+    return {
+      title: "Couldn’t reach the travel planner.",
+      detail: "The service may be waking up or temporarily unavailable. Please try again.",
+    };
+  }
+
+  return {
+    title: "Something went wrong while planning your trip.",
+    detail: "Please retry your request in a moment.",
+  };
+}
 
 export default function ChatPage() {
   const location = useLocation();
@@ -20,8 +42,9 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [lastResponse, setLastResponse] = useState(null);
+  const [failedRequest, setFailedRequest] = useState(null);
 
   const sendTurn = async (text, history) => {
     const trimmed = text.trim();
@@ -30,7 +53,8 @@ export default function ChatPage() {
     const updated = [...history, { role: "user", content: trimmed }];
     setMessages(updated);
     setLoading(true);
-    setError("");
+    setError(null);
+    setFailedRequest(null);
     setLastResponse(null);
 
     try {
@@ -38,7 +62,8 @@ export default function ChatPage() {
       setMessages([...updated, { role: "assistant", content: data.reply }]);
       setLastResponse(data);
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to reach the travel planner API.");
+      setError(getRequestError(err));
+      setFailedRequest({ text: trimmed, history });
     } finally {
       setLoading(false);
     }
@@ -69,7 +94,10 @@ export default function ChatPage() {
   const handleNewChat = () => {
     setMessages([]);
     setLastResponse(null);
-    setError("");
+    setError(null);
+    setFailedRequest(null);
+    setInput("");
+    setLoading(false);
   };
 
   const handleKeyDown = (e) => {
@@ -81,6 +109,11 @@ export default function ChatPage() {
 
   const handleStarterPrompt = (prompt) => {
     void sendTurn(prompt, messages);
+  };
+
+  const handleRetry = () => {
+    if (!failedRequest || loading) return;
+    void sendTurn(failedRequest.text, failedRequest.history);
   };
 
   return (
@@ -115,16 +148,7 @@ export default function ChatPage() {
               <ChatMessage key={idx} role={msg.role} content={msg.content} />
             ))}
 
-            {loading && (
-              <Box
-                role="status"
-                aria-live="polite"
-                sx={{ display: "flex", alignItems: "center", gap: 1.25, py: 2, color: "text.secondary" }}
-              >
-                <CircularProgress size={20} />
-                Planning your trip...
-              </Box>
-            )}
+            {loading && <PlanningStatus />}
 
             {lastResponse?.end_of_conversation && !loading && (
               <Alert severity="success" sx={{ mt: 2 }}>
@@ -133,11 +157,7 @@ export default function ChatPage() {
             )}
           </Paper>
 
-          {error && (
-            <Alert severity="error" sx={{ mt: 1.5 }}>
-              {error}
-            </Alert>
-          )}
+          <RequestError error={error} onRetry={handleRetry} retrying={loading} />
 
           <ChatComposer
             value={input}
@@ -148,7 +168,7 @@ export default function ChatPage() {
           />
         </Box>
 
-        <TripWorkspace response={lastResponse} />
+        <TripWorkspace response={lastResponse} loading={loading} />
       </Box>
     </Container>
   );

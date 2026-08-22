@@ -4,7 +4,7 @@ import RecommendationsPanel from "../RecommendationsPanel";
 import SourcesPanel from "../SourcesPanel";
 import ExecutionTracePanel from "../ExecutionTracePanel";
 
-export default function TripWorkspace({ response }) {
+export default function TripWorkspace({ response, loading }) {
   const hasWorkspaceData = Boolean(
     response?.recommendations?.length || response?.sources?.length || response?.execution_traces?.length,
   );
@@ -43,10 +43,12 @@ export default function TripWorkspace({ response }) {
         >
           <AutoAwesomeOutlinedIcon sx={{ color: "secondary.main", mb: 1 }} />
           <Typography variant="subtitle2" color="text.primary" sx={{ mb: 0.5 }}>
-            Your trip context will build here
+            {loading ? "Preparing your trip workspace..." : "Your trip context will build here"}
           </Typography>
           <Typography variant="body2">
-            Ask a question to bring together useful recommendations and the sources behind them.
+            {loading
+              ? "Useful recommendations and supporting sources will appear when your response is ready."
+              : "Ask a question to bring together useful recommendations and the sources behind them."}
           </Typography>
         </Paper>
       )}
