@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import ChatMessage from "../components/ChatMessage";
 import RecommendationsPanel from "../components/RecommendationsPanel";
 import SourcesPanel from "../components/SourcesPanel";
@@ -18,22 +19,23 @@ import ExecutionTracePanel from "../components/ExecutionTracePanel";
 import { sendChat } from "../services/api";
 
 export default function ChatPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastResponse, setLastResponse] = useState(null);
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
+  const sendTurn = async (text, history) => {
+    const trimmed = text.trim();
+    if (!trimmed || loading) return;
 
-    const updated = [...messages, { role: "user", content: text }];
+    const updated = [...history, { role: "user", content: trimmed }];
     setMessages(updated);
-    setInput("");
     setLoading(true);
     setError("");
-    setLastResponse(null); // clear stale recommendations/sources from previous turn
+    setLastResponse(null);
 
     try {
       const data = await sendChat(updated);
@@ -44,6 +46,28 @@ export default function ChatPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const prompt = location.state?.initialPrompt;
+    const requestId = location.state?.requestId;
+    if (typeof prompt !== "string" || !prompt.trim() || !requestId) return;
+
+    const lockKey = `chat-handoff:${requestId}`;
+    if (sessionStorage.getItem(lockKey)) return;
+    sessionStorage.setItem(lockKey, "1");
+
+    navigate("/chat", { replace: true, state: {} });
+    void sendTurn(prompt, []);
+    // Landing handoff runs once per requestId; sendTurn is stable for this mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+    setInput("");
+    await sendTurn(text, messages);
   };
 
   const handleNewChat = () => {
