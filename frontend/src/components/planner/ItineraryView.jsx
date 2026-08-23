@@ -153,7 +153,8 @@ function splitItinerary(markdown) {
   markdown.split("\n").forEach((line) => {
     if (/^\s*(```|~~~)/.test(line)) inCodeFence = !inCodeFence;
     if (!inCodeFence) {
-      const dayMatch = (headingText(line, 2) || headingText(line, 3))?.match(DAY_HEADING);
+      const dayText = (headingText(line, 2) || headingText(line, 3))?.replace(/^\*\*(.*?)\*\*$/, "$1");
+      const dayMatch = dayText?.match(DAY_HEADING);
       if (dayMatch) {
         if (currentDay) flushDay(); else flushPlain();
         currentDay = { type: "day", number: dayMatch[1], title: dayMatch[2], markdown: "", activities: [] };
