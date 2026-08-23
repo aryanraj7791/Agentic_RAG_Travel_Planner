@@ -18,6 +18,8 @@ import WbTwilightIcon from "@mui/icons-material/WbTwilight";
 import ReactMarkdown from "react-markdown";
 import { memo } from "react";
 import remarkGfm from "remark-gfm";
+import PlaceImage from "./PlaceImage";
+import { resolvePlaceImage } from "../../utils/imageResolver";
 
 const DAY_HEADING = /^day\s*(\d+)\s*(?::|\-|\u2013|\u2014)?\s*(.*)$/i;
 const PERIOD_LABEL = "early morning|late morning|morning|mid-day|afternoon|evening|night|arrival|departure|travel|breakfast|lunch|dinner";
@@ -102,6 +104,11 @@ function activityMeta(value) {
   if (!value) return null;
   const isTime = /\b\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)\b|\bnoon\b|\bonwards\b/i.test(value);
   return { value, isTime };
+}
+
+function imageCandidate(activity) {
+  if (activity.title) return activity.title;
+  return activity.markdown.match(/\*\*([^*]+)\*\*/)?.[1]?.trim() || null;
 }
 
 function MarkdownContent({ markdown }) {
@@ -191,11 +198,13 @@ function ActivityCard({ activity, dayNumber, index }) {
   const { Icon } = presentation;
   const meta = activityMeta(activity.time);
   const MetaIcon = meta?.isTime ? ScheduleIcon : InfoOutlinedIcon;
+  const placeImage = resolvePlaceImage(imageCandidate(activity));
   const headingId = `day-${dayNumber}-activity-${index}`;
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: { xs: "26px minmax(0, 1fr)", sm: "34px minmax(0, 1fr)" }, columnGap: { xs: 0.75, sm: 1.25 }, minWidth: 0 }}>
       <Box aria-hidden="true" sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}><Box sx={{ width: 12, height: 12, mt: 1.75, borderRadius: "50%", bgcolor: presentation.color, border: "3px solid", borderColor: presentation.background, boxSizing: "content-box", zIndex: 1 }} /><Box sx={{ width: 1, flex: 1, minHeight: 24, bgcolor: "divider" }} /></Box>
       <Paper component="section" aria-labelledby={headingId} variant="outlined" sx={{ minWidth: 0, mb: { xs: 1.25, sm: 1.75 }, p: { xs: 1.5, sm: 1.75 }, borderColor: presentation.border, borderLeft: "3px solid", borderLeftColor: presentation.color, borderRadius: 2, bgcolor: "background.paper", boxShadow: "0 2px 8px rgba(26, 35, 50, 0.045)" }}>
+        <PlaceImage place={placeImage} />
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.25, mb: activity.markdown ? 1.25 : 0, minWidth: 0 }}>
           <Box aria-hidden="true" sx={{ display: "grid", placeItems: "center", width: 36, height: 36, borderRadius: 1.25, bgcolor: presentation.background, color: presentation.color, flexShrink: 0 }}><Icon sx={{ fontSize: 20 }} /></Box>
           <Box sx={{ minWidth: 0, pt: 0.1 }}><Typography id={headingId} component="h3" variant="overline" sx={{ display: "block", color: presentation.color, fontWeight: 700 }}>{activity.period}</Typography>{activity.title && <Typography variant="subtitle1" sx={{ mt: 0.1, color: "text.primary", fontWeight: 700, lineHeight: 1.35 }}>{activity.title}</Typography>}{meta && <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.45, mt: 0.5, px: 0.75, py: 0.25, borderRadius: 1, bgcolor: presentation.background, color: presentation.color }}><MetaIcon aria-hidden="true" sx={{ fontSize: 13 }} /><Typography variant="caption" sx={{ color: "inherit", fontWeight: 600 }}>{meta.value}</Typography></Box>}</Box>
